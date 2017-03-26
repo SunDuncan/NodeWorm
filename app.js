@@ -8,48 +8,10 @@ var http = require('http');
 var cheerio = require('cheerio');
 var config = require("./config/config");
 var wormService = require('./service/wormservice');
-
+//爬取的地址
 var url = config.wormUrl;
-function insertInfo(plants) {
-	plants.forEach(function (item, index) {
-		console.log((index + 1) + "、 " + item.Title + "   url = " + item.Url + "     time = " + item.Time);
-	});
-
-	wormService.insertWorm(plants, function (err, result) {
-		
-		if (err) {
-			console.log(result);
-			return;
-		}
-
-		console.log(result);
-		return;
-	})
-}
-
-function getChapterUrl(html) {
-	var $ = cheerio.load(html);
-	var chapters = $('.news-list');
-	var plants = [];
-
-	chapters.each(function (index, item) {
-		var chapter = $(item).children('li');
-
-		chapter.each(function (index, item) {
-			var title = $(this).children('a');
-			var time = $(item).children('span').text();
-			var plant = {
-				'Title': title.text(),
-				'Url': title.attr('href'),
-				'Time': time
-			}
-			plants.push(plant);
-		})
-
-	});
-
-	return plants;
-}
+//获取页面的所有的<a>元素的属性
+var urlInfo = require("./content/allUrlContent");
 
 http.get(url, function (res) {
 	var html = '';
@@ -59,8 +21,8 @@ http.get(url, function (res) {
 	});
 
 	res.on('end', function () {
-		var plants = getChapterUrl(html);
-		insertInfo(plants);
+		
+		urlInfo.dealUrlData(html);
 	});
 
 
